@@ -1,0 +1,105 @@
+<%- include("../partials/head", { title }) %>
+<%- include("../partials/nav") %>
+
+<div class="container py-4">
+  <h1 class="h3 mb-3">חיפוש סרטונים ביוטיוב + מועדפים</h1>
+  <%- include("../partials/flash") %>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="get" action="/videos" class="row g-2 align-items-center">
+        <div class="col-md-9">
+          <input class="form-control" name="q" placeholder="חפש סרטון..." value="<%= q %>" required />
+        </div>
+        <div class="col-md-3 d-grid">
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
+
+      <% if (errorMsg) { %>
+        <div class="alert alert-warning mt-3"><%= errorMsg %></div>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (q) { %>
+    <h2 class="h5 mb-3">תוצאות חיפוש</h2>
+    <% if (results.length === 0 && !errorMsg) { %>
+      <div class="alert alert-info">לא נמצאו תוצאות.</div>
+    <% } %>
+
+    <div class="row g-3 mb-5">
+      <% results.forEach(r => { %>
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <% if (r.thumbnailUrl) { %>
+              <img src="<%= r.thumbnailUrl %>" class="card-img-top" alt="thumbnail" />
+            <% } %>
+            <div class="card-body d-flex flex-column">
+              <h3 class="h6 card-title"><%= r.title %></h3>
+              <p class="text-muted small mb-3"><%= r.channelTitle %></p>
+
+              <div class="mt-auto d-flex gap-2">
+                <a class="btn btn-outline-secondary btn-sm" target="_blank"
+                   href="https://www.youtube.com/watch?v=<%= r.videoId %>">Open</a>
+
+                <form method="post" action="/videos/save" class="m-0">
+                  <input type="hidden" name="q" value="<%= q %>"/>
+                  <input type="hidden" name="videoId" value="<%= r.videoId %>"/>
+                  <input type="hidden" name="title" value="<%= r.title.replaceAll('"', '&quot;') %>"/>
+                  <input type="hidden" name="channelTitle" value="<%= r.channelTitle.replaceAll('"', '&quot;') %>"/>
+                  <input type="hidden" name="thumbnailUrl" value="<%= r.thumbnailUrl %>"/>
+                  <button class="btn btn-success btn-sm" type="submit">Save</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <h2 class="h5 mb-3">המועדפים שלי</h2>
+
+  <% if (saved.length === 0) { %>
+    <div class="alert alert-secondary">אין מועדפים עדיין.</div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th style="width:110px;">תמונה</th>
+            <th>כותרת</th>
+            <th style="width:180px;">ערוץ</th>
+            <th style="width:160px;">פעולות</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% saved.forEach(f => { %>
+            <tr>
+              <td>
+                <% if (f.thumbnailUrl) { %>
+                  <img src="<%= f.thumbnailUrl %>" class="thumb" alt="thumb" />
+                <% } %>
+              </td>
+              <td><%= f.title %></td>
+              <td class="text-muted"><%= f.channelTitle || "" %></td>
+              <td class="d-flex gap-2">
+                <a class="btn btn-outline-secondary btn-sm" target="_blank"
+                   href="https://www.youtube.com/watch?v=<%= f.videoId %>">Open</a>
+
+                <form method="post" action="/videos/<%= f.id %>/delete" class="m-0">
+                  <input type="hidden" name="q" value="<%= q %>"/>
+                  <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+</div>
+
+<%- include("../partials/foot") %>

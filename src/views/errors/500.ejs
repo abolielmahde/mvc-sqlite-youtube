@@ -1,0 +1,9 @@
+<%- include("../partials/head", { title }) %>
+<%- include("../partials/nav") %>
+<div class="container py-5">
+  <div class="alert alert-danger">
+    <h1 class="h4 mb-2">שגיאה (<%= status %>)</h1>
+    <p class="mb-0"><%= message %></p>
+  </div>
+</div>
+<%- include("../partials/foot") %>
