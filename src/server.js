@@ -18,6 +18,12 @@ function ensureDir(dirPath) {
 async function createApp() {
   const app = express();
 
+  // IMPORTANT: Render/Heroku/etc use reverse proxy (HTTPS outside -> HTTP inside)
+  // This is required so secure cookies work.
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
   // Paths
   const dataDir = process.env.DATA_DIR || path.join(process.cwd(), "data");
   ensureDir(dataDir);
@@ -28,8 +34,6 @@ async function createApp() {
   // View engine
   app.set("view engine", "ejs");
   app.set("views", path.join(__dirname, "views"));
-
-  // Body parsing
   app.use(express.urlencoded({ extended: true }));
 
   // Static assets
@@ -49,7 +53,7 @@ async function createApp() {
       cookie: {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: "auto", 
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       },
     })
