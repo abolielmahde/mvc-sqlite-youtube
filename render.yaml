@@ -10,4 +10,3 @@ services:
         value: production
       - key: SESSION_SECRET
         generateValue: true
-      # Add YOUTUBE_API_KEY manually in Render dashboard (not committed)
